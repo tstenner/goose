@@ -2715,14 +2715,14 @@ impl GooseAttack {
     ) -> Result<(), GooseError> {
         if !self.configuration.no_metrics {
             // Update timers if displaying running metrics.
-            if let Some(running_metrics) = self.configuration.running_metrics {
-                if util::timer_expired(
+            if let Some(running_metrics) = self.configuration.running_metrics
+                && util::timer_expired(
                     goose_attack_run_state.running_metrics_timer,
                     running_metrics,
-                ) {
-                    goose_attack_run_state.running_metrics_timer = std::time::Instant::now();
-                    goose_attack_run_state.display_running_metrics = true;
-                }
+                )
+            {
+                goose_attack_run_state.running_metrics_timer = std::time::Instant::now();
+                goose_attack_run_state.display_running_metrics = true;
             };
             // Load messages from user threads until the receiver queue is empty.
             self.receive_metrics(goose_attack_run_state, flush).await?;
@@ -2993,28 +2993,28 @@ impl GooseAttack {
     ) {
         // If error-log is enabled, convert the raw request to a GooseErrorMetric and send it
         // to the logger thread.
-        if !self.configuration.error_log.is_empty() {
-            if let Some(logger) = goose_attack_run_state.all_threads_logger_tx.as_ref() {
-                // This is a best effort logger attempt, if the logger has alrady shut down it
-                // will fail which we ignore.
-                if let Err(e) = logger.send(Some(GooseLog::Error(GooseErrorMetric {
-                    elapsed: raw_request.elapsed,
-                    raw: raw_request.raw.clone(),
-                    name: raw_request.name.clone(),
-                    final_url: raw_request.final_url.clone(),
-                    redirected: raw_request.redirected,
-                    response_time: raw_request.response_time,
-                    status_code: raw_request.status_code,
-                    user: raw_request.user,
-                    error: raw_request.error.clone(),
-                }))) {
-                    if let flume::SendError(Some(ref message)) = e {
-                        info!(
-                            "Failed to write to error log (receiver dropped?): flume::SendError({message:?})"
-                        );
-                    } else {
-                        info!("Failed to write to error log: (receiver dropped?) {e:?}");
-                    }
+        if !self.configuration.error_log.is_empty()
+            && let Some(logger) = goose_attack_run_state.all_threads_logger_tx.as_ref()
+        {
+            // This is a best effort logger attempt, if the logger has alrady shut down it
+            // will fail which we ignore.
+            if let Err(e) = logger.send(Some(GooseLog::Error(GooseErrorMetric {
+                elapsed: raw_request.elapsed,
+                raw: raw_request.raw.clone(),
+                name: raw_request.name.clone(),
+                final_url: raw_request.final_url.clone(),
+                redirected: raw_request.redirected,
+                response_time: raw_request.response_time,
+                status_code: raw_request.status_code,
+                user: raw_request.user,
+                error: raw_request.error.clone(),
+            }))) {
+                if let flume::SendError(Some(ref message)) = e {
+                    info!(
+                        "Failed to write to error log (receiver dropped?): flume::SendError({message:?})"
+                    );
+                } else {
+                    info!("Failed to write to error log: (receiver dropped?) {e:?}");
                 }
             }
         }

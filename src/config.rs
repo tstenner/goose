@@ -1939,39 +1939,38 @@ impl GooseConfiguration {
         }
 
         // If set, hatch rate must be non-zero.
-        if let Some(hatch_rate) = self.hatch_rate.as_ref() {
-            if hatch_rate == "0" {
-                return Err(GooseError::InvalidOption {
-                    option: "`configuration.hatch_rate`".to_string(),
-                    value: hatch_rate.to_string(),
-                    detail: "`configuration.hatch_rate` must be set to at least 1.".to_string(),
-                });
-            }
+        if let Some(hatch_rate) = self.hatch_rate.as_ref()
+            && hatch_rate == "0"
+        {
+            return Err(GooseError::InvalidOption {
+                option: "`configuration.hatch_rate`".to_string(),
+                value: hatch_rate.to_string(),
+                detail: "`configuration.hatch_rate` must be set to at least 1.".to_string(),
+            });
         }
 
         // If set, timeout must be greater than zero.
-        if let Some(timeout) = self.timeout.as_ref() {
-            if crate::util::get_float_from_string(self.timeout.clone())
+        if let Some(timeout) = self.timeout.as_ref()
+            && crate::util::get_float_from_string(self.timeout.clone())
                 .expect("failed to re-convert string to float")
                 <= 0.0
-            {
-                return Err(GooseError::InvalidOption {
-                    option: "`configuration.timeout`".to_string(),
-                    value: timeout.to_string(),
-                    detail: "`configuration.timeout` must be greater than 0.".to_string(),
-                });
-            }
+        {
+            return Err(GooseError::InvalidOption {
+                option: "`configuration.timeout`".to_string(),
+                value: timeout.to_string(),
+                detail: "`configuration.timeout` must be greater than 0.".to_string(),
+            });
         }
 
         // Validate `users`.
-        if let Some(users) = self.users.as_ref() {
-            if users == &0 {
-                return Err(GooseError::InvalidOption {
-                    option: "configuration.users".to_string(),
-                    value: users.to_string(),
-                    detail: "`configuration.users` must be set to at least 1.".to_string(),
-                });
-            }
+        if let Some(users) = self.users.as_ref()
+            && users == &0
+        {
+            return Err(GooseError::InvalidOption {
+                option: "configuration.users".to_string(),
+                value: users.to_string(),
+                detail: "`configuration.users` must be set to at least 1.".to_string(),
+            });
         }
 
         // Validate `startup_time`.
@@ -1986,14 +1985,14 @@ impl GooseConfiguration {
             }
 
             // Startup time requires at least 2 users.
-            if let Some(users) = self.users.as_ref() {
-                if users < &2 {
-                    return Err(GooseError::InvalidOption {
+            if let Some(users) = self.users.as_ref()
+                && users < &2
+            {
+                return Err(GooseError::InvalidOption {
                         option: "configuration.users".to_string(),
                         value: users.to_string(),
                         detail: "`configuration.users` must be set to at least 2 when `configuration.startup_time` is set.".to_string(),
                     });
-                }
             }
         }
 

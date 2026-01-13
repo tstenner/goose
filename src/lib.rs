@@ -1512,14 +1512,14 @@ impl GooseAttack {
                     self.metrics.maximum_users = goose_attack_run_state.active_users;
                 }
 
-                if let Some(running_metrics) = self.configuration.running_metrics {
-                    if util::ms_timer_expired(
+                if let Some(running_metrics) = self.configuration.running_metrics
+                    && util::ms_timer_expired(
                         goose_attack_run_state.running_metrics_timer,
                         running_metrics,
-                    ) {
-                        goose_attack_run_state.running_metrics_timer = time::Instant::now();
-                        self.metrics.print_running();
-                    }
+                    )
+                {
+                    goose_attack_run_state.running_metrics_timer = time::Instant::now();
+                    self.metrics.print_running();
                 }
             } else {
                 // Wake up twice a second to handle messages and allow for a quick shutdown if the
@@ -1799,12 +1799,12 @@ impl GooseAttack {
             self.metrics.display_status_codes = !self.configuration.no_status_codes;
 
             // Initialize CO tracker if mitigation is enabled
-            if let Some(co_mitigation) = &self.configuration.co_mitigation {
-                if co_mitigation != &metrics::GooseCoordinatedOmissionMitigation::Disabled {
-                    self.metrics.coordinated_omission_metrics = Some(
-                        metrics::CoordinatedOmissionMetrics::new(co_mitigation.clone()),
-                    );
-                }
+            if let Some(co_mitigation) = &self.configuration.co_mitigation
+                && co_mitigation != &metrics::GooseCoordinatedOmissionMitigation::Disabled
+            {
+                self.metrics.coordinated_omission_metrics = Some(
+                    metrics::CoordinatedOmissionMetrics::new(co_mitigation.clone()),
+                );
             }
         }
 

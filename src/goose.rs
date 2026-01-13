@@ -1204,10 +1204,10 @@ impl GooseUser {
     ///     defined for the current load test)
     pub fn build_url(&self, path: &str) -> Result<String, Box<TransactionError>> {
         // If URL includes a host, simply use it.
-        if let Ok(parsed_path) = Url::parse(path) {
-            if let Some(_host) = parsed_path.host() {
-                return Ok(path.to_string());
-            }
+        if let Ok(parsed_path) = Url::parse(path)
+            && let Some(_host) = parsed_path.host()
+        {
+            return Ok(path.to_string());
         }
 
         // Otherwise use the `base_url`.
@@ -2051,21 +2051,20 @@ impl GooseUser {
         request_metric: GooseRequestMetric,
     ) -> TransactionResult {
         // If requests-file is enabled, send a copy of the raw request to the logger thread.
-        if !self.config.request_log.is_empty() {
-            if let Some(logger) = self.logger.as_ref() {
-                if let Err(e) = logger.send(Some(GooseLog::Request(request_metric.clone()))) {
-                    return Err(Box::new(e.into()));
-                }
-            }
+        if !self.config.request_log.is_empty()
+            && let Some(logger) = self.logger.as_ref()
+            && let Err(e) = logger.send(Some(GooseLog::Request(request_metric.clone())))
+        {
+            return Err(Box::new(e.into()));
         }
 
         // Parent is not defined when running
         // [`test_start`](../struct.GooseAttack.html#method.test_start),
         // [`test_stop`](../struct.GooseAttack.html#method.test_stop), and during testing.
-        if let Some(metrics_channel) = self.metrics_channel.clone() {
-            if let Err(e) = metrics_channel.send(GooseMetric::Request(Box::new(request_metric))) {
-                return Err(Box::new(e.into()));
-            }
+        if let Some(metrics_channel) = self.metrics_channel.clone()
+            && let Err(e) = metrics_channel.send(GooseMetric::Request(Box::new(request_metric)))
+        {
+            return Err(Box::new(e.into()));
         }
 
         Ok(())
